@@ -230,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
         if (location.getAltitude() < MIN_FLIGHT_ALTITUDE) {
             if (altitudeSnackbar != null) {
+                altitudeSnackbar.show();
+
                 return;
             }
 
@@ -244,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
             altitudeSnackbar.show();
         } else {
             altitudeSnackbar.dismiss();
-            altitudeSnackbar = null;
         }
     }
 
@@ -257,6 +258,10 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         builder.setNeutralButton("I understand that this app is only useful at flight altitude", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                // the snackbar should also be visible after reading this dialog. you never know...
+                isLocationFix = false;
+                pollLocationFix();
+
                 dialog.dismiss();
             }
         });
