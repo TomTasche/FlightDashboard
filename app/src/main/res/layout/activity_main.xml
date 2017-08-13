@@ -25,4 +25,99 @@
         android:progress="5"
         android:layout_marginTop="-6dp"/>
 
+    <RelativeLayout
+        android:id="@+id/flight_stats_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:behavior_peekHeight="80dp"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:background="#FFF"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/flight_stats_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Flight Stats"
+            android:textSize="@dimen/material_text_display1" />
+
+        <TextView
+            android:id="@+id/flight_stats_altitude_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Altitude:"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_marginRight="2dp"
+            android:layout_below="@id/flight_stats_header"/>
+
+        <TextView
+            android:id="@+id/flight_stats_altitude_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_below="@id/flight_stats_header"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/flight_stats_altitude_label"/>
+
+        <TextView
+            android:id="@+id/flight_stats_speed_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speed:"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_marginRight="2dp"
+            android:layout_below="@id/flight_stats_altitude_value"/>
+
+        <TextView
+            android:id="@+id/flight_stats_speed_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_below="@id/flight_stats_altitude_value"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/flight_stats_speed_label"/>
+
+        <TextView
+            android:id="@+id/flight_stats_bearing_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bearing (Direction):"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_marginRight="2dp"
+            android:layout_below="@id/flight_stats_speed_value"/>
+
+        <TextView
+            android:id="@+id/flight_stats_bearing_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_below="@id/flight_stats_speed_value"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/flight_stats_bearing_label"/>
+
+        <TextView
+            android:id="@+id/flight_stats_accuracy_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accuracy:"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_marginRight="2dp"
+            android:layout_below="@id/flight_stats_bearing_value"/>
+
+        <TextView
+            android:id="@+id/flight_stats_accuracy_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:textSize="@dimen/material_text_body1"
+            android:layout_below="@id/flight_stats_bearing_value"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/flight_stats_accuracy_label"/>
+    </RelativeLayout>
+
 </android.support.design.widget.CoordinatorLayout>

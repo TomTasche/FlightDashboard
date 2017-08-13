@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -36,10 +37,17 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private static final int MAPBOX_MIN_ZOOM = 1;
     private static final int MAPBOX_MAX_ZOOM = 6;
 
-    private static final double MIN_FLIGHT_ALTITUDE = 10000.0;
+    // actual flight altitude is much higher, but devices seem to stop updating altitude at some point
+    private static final double MIN_FLIGHT_ALTITUDE = 5000.0;
 
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
+
+    private View bottomSheet;
+    private TextView altitudeView;
+    private TextView speedView;
+    private TextView bearingView;
+    private TextView accuracyView;
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -56,6 +64,12 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         setContentView(R.layout.activity_main);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        bottomSheet = findViewById(R.id.flight_stats_sheet);
+        altitudeView = (TextView) findViewById(R.id.flight_stats_altitude_value);
+        speedView = (TextView) findViewById(R.id.flight_stats_speed_value);
+        bearingView = (TextView) findViewById(R.id.flight_stats_bearing_value);
+        accuracyView = (TextView) findViewById(R.id.flight_stats_accuracy_value);
 
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -228,25 +242,72 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     public void onMyLocationChange(@Nullable Location location) {
         isLocationFix = true;
 
-        if (location.getAltitude() < MIN_FLIGHT_ALTITUDE) {
-            if (altitudeSnackbar != null) {
-                altitudeSnackbar.show();
-
-                return;
+        if (location.getAltitude() <= MIN_FLIGHT_ALTITUDE) {
+            if (altitudeSnackbar == null) {
+                altitudeSnackbar = Snackbar.make(mapView, "You are not in a flight it seems!", Snackbar.LENGTH_INDEFINITE);
+                altitudeSnackbar.setAction("Huh?", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showAltitudeWarning();
+                    }
+                });
             }
 
-            altitudeSnackbar = Snackbar.make(mapView, "You are not in a flight it seems!", Snackbar.LENGTH_INDEFINITE);
-            altitudeSnackbar.setAction("Huh?", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showAltitudeWarning();
-                }
-            });
-
+            bottomSheet.setVisibility(View.GONE);
             altitudeSnackbar.show();
         } else {
-            altitudeSnackbar.dismiss();
+            if (altitudeSnackbar != null) {
+                altitudeSnackbar.dismiss();
+            }
+
+            bottomSheet.setVisibility(View.VISIBLE);
+
+            altitudeView.setText(location.getAltitude() + "");
+            speedView.setText(location.getSpeed() + "");
+
+            double bearing = location.getBearing();
+            String direction = convertBearingToDirection((int) bearing);
+            bearingView.setText(bearing + " (" + direction + ")");
+
+            accuracyView.setText(location.getAccuracy() + "");
         }
+    }
+
+    private String convertBearingToDirection(int bearing) {
+        String result = null;
+        switch (bearing) {
+            case 0:
+                result = "N/A";
+                break;
+
+            case 90:
+                result = "East";
+                break;
+
+            case 180:
+                result = "South";
+                break;
+
+            case 270:
+                result = "West";
+                break;
+
+            case 360:
+                result = "North";
+                break;
+        }
+
+        if (bearing > 0 && bearing < 90) {
+            result = "North East";
+        } else if (bearing > 90 && bearing < 180) {
+            result = "South East";
+        } else if (bearing > 180 && bearing < 270) {
+            result = "South West";
+        } else if (bearing > 270 && bearing < 360) {
+            result = "North West";
+        }
+
+        return result;
     }
 
     private void showAltitudeWarning() {
