@@ -1,4 +1,4 @@
-package at.tomtasche.airplanedashboard;
+package at.tomtasche.flightdashboard;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("at.tomtasche.airplanedashboard", appContext.getPackageName());
+        assertEquals("at.tomtasche.flightdashboard", appContext.getPackageName());
     }
 }

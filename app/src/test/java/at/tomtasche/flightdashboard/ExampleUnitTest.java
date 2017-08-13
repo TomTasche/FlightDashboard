@@ -1,4 +1,4 @@
-package at.tomtasche.airplanedashboard;
+package at.tomtasche.flightdashboard;
 
 import org.junit.Test;
 

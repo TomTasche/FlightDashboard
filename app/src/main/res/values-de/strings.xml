@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flugzeug Monitor</string>
+    <string name="app_name">Flug Monitor</string>
     <string name="direction_east">Osten</string>
     <string name="direction_north">Norden</string>
     <string name="direction_north_east">Nordosten</string>
@@ -23,4 +23,7 @@
     <string name="flight_stats_header">Flugstatistiken</string>
     <string name="flight_stats_not_available">N/A</string>
     <string name="flight_stats_speed">Geschwindigkeit:</string>
+    <string name="dialog_download_button">Okay</string>
+    <string name="dialog_download_title">Weltkarte wurde noch nicht fertig heruntergeladen</string>
+    <string name="dialog_download_message">Bitte warte bis die Weltkarte fertig heruntergeladen wurde um diese App in einem Flugzeug ohne Internetverbindung genießen zu können. Der aktuelle Fortschritt wird im oberen Bereich des Bildschirms mittels einer pinken Linie angezeigt.</string>
 </resources>

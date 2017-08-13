@@ -1,4 +1,4 @@
-package at.tomtasche.airplanedashboard;
+package at.tomtasche.flightdashboard;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -32,7 +32,7 @@ import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLocationChangeListener {
 
-    private static final String TAG = "AirplaneDashboard";
+    private static final String TAG = "FlightDashboard";
 
     private static final String MAPBOX_API_KEY = "pk.eyJ1IjoidG9tdGFzY2hlIiwiYSI6ImNqNjN3cWJneTFsaTkyeG8zNTZ3ZDhocGwifQ.NJbB_cCAqT_KDOublhLa2A";
     private static final String MAPBOX_STYLE_URL = "mapbox://styles/mapbox/outdoors-v10";
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         mapView.setStyleUrl(MAPBOX_STYLE_URL);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestLocationPermission();
+            showLocationPermissionSnackbar();
         } else {
             initializeMap();
         }
@@ -98,10 +98,6 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         if (sheetBehavior.getState() != state) {
             sheetBehavior.setState(state);
         }
-    }
-
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
     }
 
     @Override
@@ -121,18 +117,22 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initializeMap();
         } else {
-            final Snackbar snackbar = Snackbar.make(mapView, R.string.snackbar_location_permission_text, Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction(R.string.snackbar_location_permission_action, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    snackbar.dismiss();
-
-                    requestLocationPermission();
-                }
-            });
-
-            snackbar.show();
+            showLocationPermissionSnackbar();
         }
+    }
+
+    private void showLocationPermissionSnackbar() {
+        final Snackbar snackbar = Snackbar.make(mapView, R.string.snackbar_location_permission_text, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.snackbar_location_permission_action, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+            }
+        });
+
+        snackbar.show();
     }
 
     private void initializeMap() {
@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     }
 
     private void showAltitudeWarning() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.dialog_altitude_title);
         builder.setMessage(R.string.dialog_altitude_message);
 
@@ -352,6 +352,24 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (progressBar.getProgress() < 100) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.dialog_download_title);
+            builder.setMessage(R.string.dialog_download_message);
+
+            builder.setNeutralButton(R.string.dialog_download_button, null);
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            return;
+        }
+
+        super.onBackPressed();
     }
 
     @Override
