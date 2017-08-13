@@ -29,95 +29,112 @@
         android:id="@+id/flight_stats_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:behavior_peekHeight="80dp"
+        app:behavior_peekHeight="70dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
         android:elevation="4dp"
         android:orientation="vertical"
         android:background="#FFF"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:padding="@dimen/material_component_cards_padding_from_edge_of_screen_to_card">
 
         <TextView
             android:id="@+id/flight_stats_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Flight Stats"
-            android:textSize="@dimen/material_text_display1" />
+            android:textSize="@dimen/material_typography_display1"/>
 
         <TextView
             android:id="@+id/flight_stats_altitude_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Altitude:"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_marginRight="2dp"
-            android:layout_below="@id/flight_stats_header"/>
+            android:layout_below="@id/flight_stats_header"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_altitude_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="N/A"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_header"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_altitude_label"/>
+            android:layout_toRightOf="@id/flight_stats_altitude_label"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_speed_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Speed:"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_marginRight="2dp"
-            android:layout_below="@id/flight_stats_altitude_value"/>
+            android:layout_below="@id/flight_stats_altitude_value"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_speed_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="N/A"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_altitude_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_speed_label"/>
+            android:layout_toRightOf="@id/flight_stats_speed_label"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_bearing_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bearing (Direction):"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_marginRight="2dp"
-            android:layout_below="@id/flight_stats_speed_value"/>
+            android:layout_below="@id/flight_stats_speed_value"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_bearing_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="N/A"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_speed_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_bearing_label"/>
+            android:layout_toRightOf="@id/flight_stats_bearing_label"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_accuracy_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accuracy:"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_marginRight="2dp"
-            android:layout_below="@id/flight_stats_bearing_value"/>
+            android:layout_below="@id/flight_stats_bearing_value"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
         <TextView
             android:id="@+id/flight_stats_accuracy_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="N/A"
-            android:textSize="@dimen/material_text_body1"
+            android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_bearing_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_accuracy_label"/>
+            android:layout_toRightOf="@id/flight_stats_accuracy_label"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

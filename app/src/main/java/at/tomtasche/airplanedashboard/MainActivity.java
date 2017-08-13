@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private OfflineManager offlineManager;
 
     private boolean isLocationFix = false;
+    private BottomSheetBehavior<View> sheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,14 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         bearingView = (TextView) findViewById(R.id.flight_stats_bearing_value);
         accuracyView = (TextView) findViewById(R.id.flight_stats_accuracy_value);
 
+        sheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+        
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
@@ -80,6 +91,12 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
             requestLocationPermission();
         } else {
             initializeMap();
+        }
+    }
+
+    private void setBottomSheetState(int state) {
+        if (sheetBehavior.getState() != state) {
+            sheetBehavior.setState(state);
         }
     }
 
@@ -132,6 +149,13 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
                 mapboxMap.setOnMyLocationChangeListener(MainActivity.this);
 
                 pollLocationFix();
+
+                mapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(@NonNull LatLng point) {
+                        setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+                    }
+                });
             }
         });
 
