@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">AirplaneDashboard</string>
+    <string name="app_name">Airplane Dashboard</string>
+    <string name="snackbar_location_permission_text">Allow location permission to show your current location on the map</string>
+    <string name="snackbar_location_permission_action">Okay</string>
+    <string name="snackbar_altitude_text">You are not in a flight it seems!</string>
+    <string name="snackbar_altitude_action">Huh?</string>
+    <string name="direction_not_available">N/A</string>
+    <string name="direction_east">East</string>
+    <string name="direction_south">South</string>
+    <string name="direction_west">West</string>
+    <string name="direction_north">North</string>
+    <string name="direction_north_east">North East</string>
+    <string name="direction_south_east">South East</string>
+    <string name="direction_south_west">South West</string>
+    <string name="direction_north_west">North West</string>
+    <string name="dialog_altitude_title">Why do you tell me I\'m not in a flight, stupid?!</string>
+    <string name="dialog_altitude_message">To make sure everybody is able to use this app to its strengths we inform users that are not sitting inside an airplane that is already at flight altitude.  This app is not useful at all while you are not inside an airplane at flight altitude! The only thing you can do right now is to download the world map for later offline use (inside an airplane at flight altitude!)</string>
+    <string name="dialog_altitude_button">I understand that this app is only useful at flight altitude</string>
+    <string name="flight_stats_header">Flight Stats</string>
+    <string name="flight_stats_altitude">Altitude:</string>
+    <string name="flight_stats_not_available">N/A</string>
+    <string name="flight_stats_speed">Speed:</string>
+    <string name="flight_stats_bearing">Bearing (Direction):</string>
+    <string name="flight_stats_accuracy">Accuracy:</string>
 </resources>

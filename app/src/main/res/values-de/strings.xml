@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flugzeug Monitor</string>
+    <string name="direction_east">Osten</string>
+    <string name="direction_north">Norden</string>
+    <string name="direction_north_east">Nordosten</string>
+    <string name="direction_north_west">Nordwesten</string>
+    <string name="direction_not_available">N/A</string>
+    <string name="direction_south">Süden</string>
+    <string name="direction_south_east">Südosten</string>
+    <string name="direction_south_west">Südwesten</string>
+    <string name="direction_west">Westen</string>
+    <string name="snackbar_altitude_action">Hä?</string>
+    <string name="snackbar_altitude_text">Du befindest dich scheinbar nicht in einem Flugzeug!</string>
+    <string name="snackbar_location_permission_action">Okay</string>
+    <string name="snackbar_location_permission_text">Erlaube den Standortzugriff um deine aktuelle Position auf der Karte anzuzeigen</string>
+    <string name="dialog_altitude_title">Warum sagst du mir, dass ich mich nicht in einem Flugzeug befinde!?</string>
+    <string name="dialog_altitude_message">Um gewährleisten zu können, dass diese App korrekt verwendet wird informieren wir Benutzer falls sie sich gerade nicht in einem Flugzeug in Flughöhe befinden. Diese App bietet keinerlei Funktionen während man sich nicht in einem Flugzeug in Flughöhe befindet! In diesem Fall kann lediglich die Weltkarte heruntergeladen werden um sie später ohne Internetverbindung ansehen zu können (wenn man sich in einem Flugzeug auf Flughöhe befindet!)</string>
+    <string name="dialog_altitude_button">Ich akzeptiere, dass diese App nur in Flughöhe verwendbar ist</string>
+    <string name="flight_stats_accuracy">Genauigkeit:</string>
+    <string name="flight_stats_altitude">Höhe:</string>
+    <string name="flight_stats_bearing">Peilung (Richtung):</string>
+    <string name="flight_stats_header">Flugstatistiken</string>
+    <string name="flight_stats_not_available">N/A</string>
+    <string name="flight_stats_speed">Geschwindigkeit:</string>
+</resources>

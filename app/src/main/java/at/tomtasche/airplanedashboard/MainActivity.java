@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
                 setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
-        
+
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initializeMap();
         } else {
-            final Snackbar snackbar = Snackbar.make(mapView, "Allow location permission to show your current location on the map", Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction("Okay", new View.OnClickListener() {
+            final Snackbar snackbar = Snackbar.make(mapView, R.string.snackbar_location_permission_text, Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction(R.string.snackbar_location_permission_action, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     snackbar.dismiss();
@@ -268,8 +268,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
         if (location.getAltitude() <= MIN_FLIGHT_ALTITUDE) {
             if (altitudeSnackbar == null) {
-                altitudeSnackbar = Snackbar.make(mapView, "You are not in a flight it seems!", Snackbar.LENGTH_INDEFINITE);
-                altitudeSnackbar.setAction("Huh?", new View.OnClickListener() {
+                altitudeSnackbar = Snackbar.make(mapView, R.string.snackbar_altitude_text, Snackbar.LENGTH_INDEFINITE);
+                altitudeSnackbar.setAction(R.string.snackbar_altitude_action, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         showAltitudeWarning();
@@ -301,34 +301,34 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         String result = null;
         switch (bearing) {
             case 0:
-                result = "N/A";
+                result = getString(R.string.direction_not_available);
                 break;
 
             case 90:
-                result = "East";
+                result = getString(R.string.direction_east);
                 break;
 
             case 180:
-                result = "South";
+                result = getString(R.string.direction_south);
                 break;
 
             case 270:
-                result = "West";
+                result = getString(R.string.direction_west);
                 break;
 
             case 360:
-                result = "North";
+                result = getString(R.string.direction_north);
                 break;
         }
 
         if (bearing > 0 && bearing < 90) {
-            result = "North East";
+            result = getString(R.string.direction_north_east);
         } else if (bearing > 90 && bearing < 180) {
-            result = "South East";
+            result = getString(R.string.direction_south_east);
         } else if (bearing > 180 && bearing < 270) {
-            result = "South West";
+            result = getString(R.string.direction_south_west);
         } else if (bearing > 270 && bearing < 360) {
-            result = "North West";
+            result = getString(R.string.direction_north_west);
         }
 
         return result;
@@ -336,11 +336,10 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
     private void showAltitudeWarning() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Why do you tell me I'm not in a flight, stupid?!");
-        builder.setMessage("To make sure everybody is able to use this app to its strengths we inform users that are not sitting inside an airplane that is already at flight altitude.\n\n" +
-                "This app is not useful at all while you are not inside an airplane at flight altitude! The only thing you can do right now is to download the world map for later offline use (inside an airplane at flight altitude!)");
+        builder.setTitle(R.string.dialog_altitude_title);
+        builder.setMessage(R.string.dialog_altitude_message);
 
-        builder.setNeutralButton("I understand that this app is only useful at flight altitude", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.dialog_altitude_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // the snackbar should also be visible after reading this dialog. you never know...

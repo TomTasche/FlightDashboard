@@ -41,16 +41,16 @@
             android:id="@+id/flight_stats_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Flight Stats"
+            android:text="@string/flight_stats_header"
             android:textSize="@dimen/material_typography_display1"/>
 
         <TextView
             android:id="@+id/flight_stats_altitude_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Altitude:"
+            android:text="@string/flight_stats_altitude"
             android:textSize="@dimen/material_typography_body1"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_below="@id/flight_stats_header"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
@@ -59,11 +59,11 @@
             android:id="@+id/flight_stats_altitude_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="N/A"
+            android:text="@string/flight_stats_not_available"
             android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_header"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_altitude_label"
+            android:layout_toEndOf="@id/flight_stats_altitude_label"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
@@ -71,9 +71,9 @@
             android:id="@+id/flight_stats_speed_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Speed:"
+            android:text="@string/flight_stats_speed"
             android:textSize="@dimen/material_typography_body1"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_below="@id/flight_stats_altitude_value"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
@@ -82,11 +82,11 @@
             android:id="@+id/flight_stats_speed_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="N/A"
+            android:text="@string/flight_stats_not_available"
             android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_altitude_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_speed_label"
+            android:layout_toEndOf="@id/flight_stats_speed_label"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
@@ -94,9 +94,9 @@
             android:id="@+id/flight_stats_bearing_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bearing (Direction):"
+            android:text="@string/flight_stats_bearing"
             android:textSize="@dimen/material_typography_body1"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_below="@id/flight_stats_speed_value"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
@@ -105,11 +105,11 @@
             android:id="@+id/flight_stats_bearing_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="N/A"
+            android:text="@string/flight_stats_not_available"
             android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_speed_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_bearing_label"
+            android:layout_toEndOf="@id/flight_stats_bearing_label"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
 
@@ -117,9 +117,9 @@
             android:id="@+id/flight_stats_accuracy_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accuracy:"
+            android:text="@string/flight_stats_accuracy"
             android:textSize="@dimen/material_typography_body1"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_below="@id/flight_stats_bearing_value"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
@@ -128,11 +128,11 @@
             android:id="@+id/flight_stats_accuracy_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="N/A"
+            android:text="@string/flight_stats_not_available"
             android:textSize="@dimen/material_typography_body1"
             android:layout_below="@id/flight_stats_bearing_value"
             android:textStyle="bold"
-            android:layout_toRightOf="@id/flight_stats_accuracy_label"
+            android:layout_toEndOf="@id/flight_stats_accuracy_label"
             android:paddingTop="@dimen/material_component_cards_space_between_cards"
             android:paddingBottom="@dimen/material_component_cards_space_between_cards"/>
     </RelativeLayout>
