@@ -30,6 +30,9 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionError;
 import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLocationChangeListener {
 
     private static final String TAG = "FlightDashboard";
@@ -42,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     // actual flight altitude is much higher, but devices seem to stop updating altitude at some point
     private static final double MIN_FLIGHT_ALTITUDE = 5000.0;
 
+    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss");
+
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
 
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private TextView speedView;
     private TextView bearingView;
     private TextView accuracyView;
+    private TextView timestampView;
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -76,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         speedView = (TextView) findViewById(R.id.flight_stats_speed_value);
         bearingView = (TextView) findViewById(R.id.flight_stats_bearing_value);
         accuracyView = (TextView) findViewById(R.id.flight_stats_accuracy_value);
+        timestampView = (TextView) findViewById(R.id.flight_stats_timestamp_value);
 
         sheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheet.setOnClickListener(new View.OnClickListener() {
@@ -294,6 +301,9 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
             bearingView.setText(formatNumber(bearing) + " (" + direction + ")");
 
             accuracyView.setText(formatNumber(location.getAccuracy(), "m"));
+
+            String dateString = DATE_FORMAT.format(new Date());
+            timestampView.setText(dateString);
         }
     }
 

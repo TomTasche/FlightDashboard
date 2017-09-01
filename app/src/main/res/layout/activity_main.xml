@@ -139,6 +139,30 @@
             android:text="@string/flight_stats_not_available"
             android:textSize="@dimen/material_typography_body1"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/flight_stats_timestamp_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/flight_stats_accuracy_value"
+            android:layout_marginEnd="2dp"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"
+            android:paddingStart="@dimen/material_component_cards_padding_from_edge_of_screen_to_card"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:text="@string/flight_stats_timestamp"
+            android:textSize="@dimen/material_typography_body1" />
+
+        <TextView
+            android:id="@+id/flight_stats_timestamp_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/flight_stats_accuracy_value"
+            android:layout_toEndOf="@id/flight_stats_timestamp_label"
+            android:paddingBottom="@dimen/material_component_cards_space_between_cards"
+            android:paddingTop="@dimen/material_component_cards_space_between_cards"
+            android:text="@string/flight_stats_not_available"
+            android:textSize="@dimen/material_typography_body1"
+            android:textStyle="bold" />
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

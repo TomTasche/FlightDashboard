@@ -26,4 +26,5 @@
     <string name="dialog_download_button">Okay</string>
     <string name="dialog_download_title">Weltkarte wurde noch nicht fertig heruntergeladen</string>
     <string name="dialog_download_message">Bitte warte bis die Weltkarte fertig heruntergeladen wurde um diese App in einem Flugzeug ohne Internetverbindung genießen zu können. Der aktuelle Fortschritt wird im oberen Bereich des Bildschirms mittels einer pinken Linie angezeigt.</string>
+    <string name="flight_stats_timestamp">Zuletzt aktualisiert:</string>
 </resources>

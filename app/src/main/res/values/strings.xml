@@ -25,4 +25,5 @@
     <string name="dialog_download_title">Download of world map not complete yet</string>
     <string name="dialog_download_message">Please wait for the download of the world map to finish in order to enjoy this app inside an airplane while you are offline. The progress of the download is shown at the top of the screen in form of a pink bar.</string>
     <string name="dialog_download_button">Okay</string>
+    <string name="flight_stats_timestamp">Last updated:</string>
 </resources>
