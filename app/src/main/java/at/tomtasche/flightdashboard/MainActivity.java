@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private Snackbar altitudeSnackbar;
 
     private View bottomSheet;
+    private BottomSheetBehavior<View> sheetBehavior;
+
     private TextView altitudeView;
     private TextView speedView;
     private TextView bearingView;
@@ -56,7 +58,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private OfflineManager offlineManager;
 
     private boolean isLocationFix = false;
-    private BottomSheetBehavior<View> sheetBehavior;
+
+    private boolean isAltitudeAcknowledged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -263,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     public void onMyLocationChange(@Nullable Location location) {
         isLocationFix = true;
 
-        if (location.getAltitude() <= MIN_FLIGHT_ALTITUDE) {
+        if (!isAltitudeAcknowledged && location.getAltitude() <= MIN_FLIGHT_ALTITUDE) {
             if (altitudeSnackbar == null) {
                 altitudeSnackbar = Snackbar.make(mapView, R.string.snackbar_altitude_text, Snackbar.LENGTH_INDEFINITE);
                 altitudeSnackbar.setAction(R.string.snackbar_altitude_action, new View.OnClickListener() {
@@ -283,15 +286,25 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
             bottomSheet.setVisibility(View.VISIBLE);
 
-            altitudeView.setText(location.getAltitude() + "");
-            speedView.setText(location.getSpeed() + "");
+            altitudeView.setText(formatNumber(location.getAltitude(), "m"));
+            speedView.setText(formatNumber(location.getSpeed() * 3.6, "km/h"));
 
             double bearing = location.getBearing();
             String direction = convertBearingToDirection((int) bearing);
-            bearingView.setText(bearing + " (" + direction + ")");
+            bearingView.setText(formatNumber(bearing) + " (" + direction + ")");
 
-            accuracyView.setText(location.getAccuracy() + "");
+            accuracyView.setText(formatNumber(location.getAccuracy(), "m"));
         }
+    }
+
+    private String formatNumber(Number number) {
+        return formatNumber(number, "");
+    }
+
+    private String formatNumber(Number number, String unit) {
+        Double doubleNumber = number.doubleValue();
+
+        return String.format("%.02f " + unit, doubleNumber);
     }
 
     private String convertBearingToDirection(int bearing) {
@@ -339,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         builder.setNeutralButton(R.string.dialog_altitude_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // the snackbar should also be visible after reading this dialog. you never know...
+                isAltitudeAcknowledged = true;
                 isLocationFix = false;
                 pollLocationFix();
 
