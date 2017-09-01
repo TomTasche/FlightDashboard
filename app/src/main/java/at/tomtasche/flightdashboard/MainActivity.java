@@ -143,9 +143,6 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
                 mapboxMap.setMyLocationEnabled(true);
 
-                mapboxMap.setMinZoomPreference(MAPBOX_MIN_ZOOM);
-                mapboxMap.setMaxZoomPreference(MAPBOX_MAX_ZOOM);
-
                 mapboxMap.setOnMyLocationChangeListener(MainActivity.this);
 
                 pollLocationFix();
