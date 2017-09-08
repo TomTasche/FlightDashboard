@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
     private LocationManager locationManager;
 
+    private FirebaseAnalytics firebaseAnalytics;
+
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
 
@@ -78,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         Mapbox.getInstance(this, MAPBOX_API_KEY);
 
