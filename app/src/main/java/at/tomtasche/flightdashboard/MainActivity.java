@@ -1,10 +1,14 @@
 package at.tomtasche.flightdashboard;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -47,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss");
 
+    private LocationManager locationManager;
+
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
 
@@ -63,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private MapboxMap mapboxMap;
     private OfflineManager offlineManager;
 
+    private boolean isMapInitialized = false;
+
     private boolean isLocationFix = false;
 
     private boolean isAltitudeAcknowledged = false;
@@ -74,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         Mapbox.getInstance(this, MAPBOX_API_KEY);
 
         setContentView(R.layout.activity_main);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -96,18 +106,20 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         mapView.onCreate(savedInstanceState);
 
         mapView.setStyleUrl(MAPBOX_STYLE_URL);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            showLocationPermissionSnackbar();
-        } else {
-            initializeMap();
-        }
     }
 
     private void setBottomSheetState(int state) {
         if (sheetBehavior.getState() != state) {
             sheetBehavior.setState(state);
         }
+    }
+
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean checkLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     @Override
@@ -120,25 +132,29 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     public void onResume() {
         super.onResume();
         mapView.onResume();
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initializeMap();
+        if (checkLocationEnabled() && checkLocationPermission()) {
+            if (!isMapInitialized) {
+                initializeMap();
+            }
         } else {
-            showLocationPermissionSnackbar();
+            showLocationSnackbar();
         }
     }
 
-    private void showLocationPermissionSnackbar() {
-        final Snackbar snackbar = Snackbar.make(mapView, R.string.snackbar_location_permission_text, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.snackbar_location_permission_action, new View.OnClickListener() {
+    private void showLocationSnackbar() {
+        final Snackbar snackbar = Snackbar.make(mapView, R.string.snackbar_location_text, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.snackbar_location_action, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 snackbar.dismiss();
 
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+                if (!checkLocationPermission()) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+                } else if (!checkLocationEnabled()) {
+                    Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivityForResult(locationIntent, 1234);
+                }
             }
         });
 
@@ -146,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     }
 
     private void initializeMap() {
+        isMapInitialized = true;
+
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {

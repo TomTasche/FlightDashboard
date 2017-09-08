@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Flight Dashboard</string>
-    <string name="snackbar_location_permission_text">Allow location permission to show your current location on the map</string>
-    <string name="snackbar_location_permission_action">Okay</string>
+    <string name="snackbar_location_text">Enable GPS and grant permission to show your current location on the map</string>
+    <string name="snackbar_location_action">Okay</string>
     <string name="snackbar_altitude_text">You are not in a flight it seems!</string>
     <string name="snackbar_altitude_action">Huh?</string>
     <string name="direction_not_available">N/A</string>
