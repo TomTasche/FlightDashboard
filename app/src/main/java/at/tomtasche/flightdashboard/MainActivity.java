@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
                 MainActivity.this.mapboxMap = mapboxMap;
 
                 mapboxMap.setMyLocationEnabled(true);
+                mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
 
                 mapboxMap.setOnMyLocationChangeListener(MainActivity.this);
 
