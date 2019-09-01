@@ -1,51 +1,65 @@
 package at.tomtasche.flightdashboard;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import androidx.annotation.NonNull;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
+import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
+import com.mapbox.mapboxsdk.location.modes.CameraMode;
+import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
-import com.mapbox.mapboxsdk.offline.OfflineRegionError;
-import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
-import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLocationChangeListener {
+public class MainActivity extends AppCompatActivity implements PermissionsListener, LocationEngineCallback<LocationEngineResult> {
 
     private static final String TAG = "FlightDashboard";
 
     private static final String MAPBOX_API_KEY = "pk.eyJ1IjoidG9tdGFzY2hlIiwiYSI6ImNqNjN3cWJneTFsaTkyeG8zNTZ3ZDhocGwifQ.NJbB_cCAqT_KDOublhLa2A";
-    private static final String MAPBOX_STYLE_URL = "mapbox://styles/mapbox/outdoors-v10";
-    private static final int MAPBOX_MIN_ZOOM = 1;
-    private static final int MAPBOX_MAX_ZOOM = 6;
+    private static final String MAPBOX_STYLE = Style.OUTDOORS;
 
     // actual flight altitude is much higher, but devices seem to stop updating altitude at some point
     private static final double MIN_FLIGHT_ALTITUDE = 5000.0;
@@ -54,10 +68,9 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
     private LocationManager locationManager;
 
-    private FirebaseAnalytics firebaseAnalytics;
-
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
+    private Snackbar altitudeLockSnackbar;
 
     private View bottomSheet;
     private BottomSheetBehavior<View> sheetBehavior;
@@ -68,23 +81,22 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private TextView accuracyView;
     private TextView timestampView;
 
+    private Style style;
     private MapView mapView;
     private MapboxMap mapboxMap;
-    private OfflineManager offlineManager;
+    private PermissionsManager permissionsManager;
 
     private boolean isMapInitialized = false;
 
-    private boolean isLocationFix = false;
-
     private boolean isAltitudeAcknowledged = false;
+    private boolean isAltitudeLockAcknowledged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
         Mapbox.getInstance(this, MAPBOX_API_KEY);
+        Mapbox.setConnected(false);
 
         setContentView(R.layout.activity_main);
 
@@ -109,18 +121,12 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
 
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-
-        mapView.setStyleUrl(MAPBOX_STYLE_URL);
     }
 
     private void setBottomSheetState(int state) {
         if (sheetBehavior.getState() != state) {
             sheetBehavior.setState(state);
         }
-    }
-
-    private boolean checkLocationPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean checkLocationEnabled() {
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         super.onResume();
         mapView.onResume();
 
-        if (checkLocationEnabled() && checkLocationPermission()) {
+        if (checkLocationEnabled()) {
             if (!isMapInitialized) {
                 initializeMap();
             }
@@ -154,9 +160,7 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
             public void onClick(View v) {
                 snackbar.dismiss();
 
-                if (!checkLocationPermission()) {
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
-                } else if (!checkLocationEnabled()) {
+                if (!checkLocationEnabled()) {
                     Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     startActivityForResult(locationIntent, 1234);
                 }
@@ -169,165 +173,101 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
     private void initializeMap() {
         isMapInitialized = true;
 
+        copyOfflineMap();
+
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 MainActivity.this.mapboxMap = mapboxMap;
 
-                mapboxMap.setMyLocationEnabled(true);
+                mapboxMap.setStyle(new Style.Builder().fromUri(MAPBOX_STYLE),
+                        new Style.OnStyleLoaded() {
+
+                            @Override
+                            public void onStyleLoaded(@NonNull Style style) {
+                                MainActivity.this.style = style;
+
+                                enableLocationComponent();
+                            }
+                        });
+
                 mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
 
-                mapboxMap.setOnMyLocationChangeListener(MainActivity.this);
-
-                pollLocationFix();
-
-                mapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                     @Override
-                    public void onMapClick(@NonNull LatLng point) {
+                    public boolean onMapClick(@NonNull LatLng point) {
                         setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+
+                        return true;
                     }
                 });
             }
         });
+    }
 
-        offlineManager = OfflineManager.getInstance(this);
+    private void copyOfflineMap() {
+        try {
+            File file = new File(getFilesDir(), "world_v1.db");
+            if (file.exists()) {
+                progressBar.setProgress(100);
 
-        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
-            @Override
-            public void onList(OfflineRegion[] offlineRegions) {
-                if (offlineRegions.length == 0) {
-                    downloadMap();
+                return;
+            }
 
-                    return;
+            InputStream inputStream = getResources().openRawResource(R.raw.world);
+            file.createNewFile();
+            copy(inputStream, file);
+
+            OfflineManager offlineManager = OfflineManager.getInstance(this);
+            offlineManager.mergeOfflineRegions(file.getPath(), new OfflineManager.MergeOfflineRegionsCallback() {
+
+                @Override
+                public void onMerge(OfflineRegion[] offlineRegions) {
+                    progressBar.setProgress(100);
                 }
 
-                offlineRegions[0].getStatus(new OfflineRegion.OfflineRegionStatusCallback() {
-                    @Override
-                    public void onStatus(OfflineRegionStatus status) {
-                        if (!status.isComplete()) {
-                            downloadMap();
-                        } else {
-                            progressBar.setProgress(100);
-                        }
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        Log.d(TAG, "Error: " + error);
-
-                        downloadMap();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                Log.d(TAG, "Error: " + error);
-
-                downloadMap();
-            }
-        });
-    }
-
-    private void downloadMap() {
-        LatLngBounds worldBounds = LatLngBounds.world();
-        float screenDensity = MainActivity.this.getResources().getDisplayMetrics().density;
-
-        OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(MAPBOX_STYLE_URL, worldBounds, MAPBOX_MIN_ZOOM, MAPBOX_MAX_ZOOM, screenDensity);
-
-        offlineManager.createOfflineRegion(definition, null, new OfflineManager.CreateOfflineRegionCallback() {
-            @Override
-            public void onCreate(OfflineRegion offlineRegion) {
-                offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
-
-                offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
-                    @Override
-                    public void onStatusChanged(OfflineRegionStatus status) {
-                        double percentage = status.getRequiredResourceCount() >= 0 ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) : 0.0;
-                        progressBar.setProgress((int) percentage);
-
-                        if (status.isComplete()) {
-                            Log.d(TAG, "Region downloaded successfully.");
-                        } else if (status.isRequiredResourceCountPrecise()) {
-                            Log.d(TAG, percentage + "");
-                        }
-                    }
-
-                    @Override
-                    public void onError(OfflineRegionError error) {
-                        Log.e(TAG, "onError reason: " + error.getReason());
-                        Log.e(TAG, "onError message: " + error.getMessage());
-                    }
-
-                    @Override
-                    public void mapboxTileCountLimitExceeded(long limit) {
-                        Log.e(TAG, "Mapbox tile count limit exceeded: " + limit);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                Log.e(TAG, "Error: " + error);
-            }
-        });
-    }
-
-    private void pollLocationFix() {
-        if (isLocationFix) {
-            return;
+                @Override
+                public void onError(String error) {
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        Location location = mapboxMap.getMyLocation();
-        if (location != null) {
-            onMyLocationChange(location);
-
-            return;
-        }
-
-        mapView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                pollLocationFix();
-            }
-        }, 500);
     }
 
-    @Override
-    public void onMyLocationChange(@Nullable Location location) {
-        isLocationFix = true;
-
-        if (!isAltitudeAcknowledged && location.getAltitude() <= MIN_FLIGHT_ALTITUDE) {
-            if (altitudeSnackbar == null) {
-                altitudeSnackbar = Snackbar.make(mapView, R.string.snackbar_altitude_text, Snackbar.LENGTH_INDEFINITE);
-                altitudeSnackbar.setAction(R.string.snackbar_altitude_action, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showAltitudeWarning();
-                    }
-                });
+    private static void copy(InputStream src, File dst) throws IOException {
+        try (OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = src.read(buf)) > 0) {
+                out.write(buf, 0, len);
             }
+        } finally {
+            src.close();
+        }
+    }
 
-            bottomSheet.setVisibility(View.GONE);
-            altitudeSnackbar.show();
+    private void enableLocationComponent() {
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
+            locationComponent.activateLocationComponent(
+                    LocationComponentActivationOptions.builder(this, style).build());
+
+            locationComponent.setLocationComponentEnabled(true);
+            locationComponent.setCameraMode(CameraMode.NONE);
+            locationComponent.setRenderMode(RenderMode.COMPASS);
+
+            LocationEngine locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+
+            LocationEngineRequest request = new LocationEngineRequest.Builder(5000)
+                    .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY).build();
+
+            locationEngine.requestLocationUpdates(request, this, getMainLooper());
+            locationEngine.getLastLocation(this);
         } else {
-            if (altitudeSnackbar != null) {
-                altitudeSnackbar.dismiss();
-            }
-
-            bottomSheet.setVisibility(View.VISIBLE);
-
-            altitudeView.setText(formatNumber(location.getAltitude(), "m"));
-            speedView.setText(formatNumber(location.getSpeed() * 3.6, "km/h"));
-
-            double bearing = location.getBearing();
-            String direction = convertBearingToDirection((int) bearing);
-            bearingView.setText(formatNumber(bearing) + " (" + direction + ")");
-
-            accuracyView.setText(formatNumber(location.getAccuracy(), "m"));
-
-            String dateString = DATE_FORMAT.format(new Date());
-            timestampView.setText(dateString);
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
         }
     }
 
@@ -387,10 +327,13 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 isAltitudeAcknowledged = true;
-                isLocationFix = false;
-                pollLocationFix();
+
+                altitudeSnackbar.dismiss();
+                altitudeSnackbar = null;
 
                 dialog.dismiss();
+
+                bottomSheet.setVisibility(View.VISIBLE);
             }
         });
 
@@ -414,6 +357,20 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         }
 
         super.onBackPressed();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        enableLocationComponent();
     }
 
     @Override
@@ -446,4 +403,67 @@ public class MainActivity extends AppCompatActivity implements MapboxMap.OnMyLoc
         mapView.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onSuccess(LocationEngineResult result) {
+        Location location = result.getLastLocation();
+
+        final double altitude = location.getAltitude();
+        if (!isAltitudeAcknowledged && altitude <= MIN_FLIGHT_ALTITUDE) {
+            if (altitudeSnackbar != null) {
+                return;
+            }
+
+            altitudeSnackbar = Snackbar.make(mapView, R.string.snackbar_altitude_text, Snackbar.LENGTH_INDEFINITE);
+            altitudeSnackbar.setAction(R.string.snackbar_altitude_action, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    altitudeSnackbar.dismiss();
+
+                    showAltitudeWarning();
+                }
+            });
+
+            bottomSheet.setVisibility(View.GONE);
+            altitudeSnackbar.show();
+        } else if (!isAltitudeLockAcknowledged && (altitude == Math.floor(altitude)) && !Double.isInfinite(altitude)) {
+            // taken from: https://stackoverflow.com/a/9898528/198996
+
+            if (altitudeLockSnackbar != null) {
+                return;
+            }
+
+            altitudeLockSnackbar = Snackbar.make(mapView, "Your device seems to lock the reported altitude at a specific value for security reasons. Sorry for any inconvenience caused!", Snackbar.LENGTH_INDEFINITE);
+            altitudeLockSnackbar.setAction(android.R.string.ok, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isAltitudeLockAcknowledged = true;
+
+                    altitudeLockSnackbar.dismiss();
+                    altitudeLockSnackbar = null;
+
+                    bottomSheet.setVisibility(View.VISIBLE);
+                }
+            });
+
+            bottomSheet.setVisibility(View.GONE);
+            altitudeLockSnackbar.show();
+        }
+
+        altitudeView.setText(formatNumber(altitude, "m"));
+        speedView.setText(formatNumber(location.getSpeed() * 3.6, "km/h"));
+
+        double bearing = location.getBearing();
+        String direction = convertBearingToDirection((int) bearing);
+        bearingView.setText(formatNumber(bearing) + " (" + direction + ")");
+
+        accuracyView.setText(formatNumber(location.getAccuracy(), "m"));
+
+        String dateString = DATE_FORMAT.format(new Date());
+        timestampView.setText(dateString);
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception exception) {
+        showLocationSnackbar();
+    }
 }
