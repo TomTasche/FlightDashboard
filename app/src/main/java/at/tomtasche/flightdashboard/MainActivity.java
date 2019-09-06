@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
     // actual flight altitude is much higher, but devices seem to stop updating altitude at some point
     private static final double MIN_FLIGHT_ALTITUDE = 5000.0;
 
-    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm:ss");
+    private static final String WORLD_FILE = "world_v2.db";
 
     private LocationManager locationManager;
 
@@ -94,6 +95,15 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        File oldWorldFile = new File(getFilesDir(), "world_v1.db");
+        oldWorldFile.delete();
+
+        File worldFile = new File(getFilesDir(), WORLD_FILE);
+        if (!worldFile.exists()) {
+            File mapboxCacheFile = new File(getFilesDir(), "mbgl-offline.db");
+            mapboxCacheFile.delete();
+        }
 
         Mapbox.getInstance(this, MAPBOX_API_KEY);
         Mapbox.setConnected(false);
@@ -207,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
 
     private void copyOfflineMap() {
         try {
-            File file = new File(getFilesDir(), "world_v1.db");
+            final File file = new File(getFilesDir(), WORLD_FILE);
             if (file.exists()) {
                 progressBar.setProgress(100);
 
@@ -223,6 +233,14 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
 
                 @Override
                 public void onMerge(OfflineRegion[] offlineRegions) {
+                    try {
+                        // delete and recreate so we can check if it has been imported before
+                        file.delete();
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     progressBar.setProgress(100);
                 }
 
@@ -432,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
                 return;
             }
 
-            altitudeLockSnackbar = Snackbar.make(mapView, "Your device seems to lock the reported altitude at a specific value for security reasons. Sorry for any inconvenience caused!", Snackbar.LENGTH_INDEFINITE);
+            altitudeLockSnackbar = Snackbar.make(mapView, R.string.snackbar_altitude_lock_text, Snackbar.LENGTH_INDEFINITE);
             altitudeLockSnackbar.setAction(android.R.string.ok, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

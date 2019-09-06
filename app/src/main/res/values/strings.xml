@@ -4,6 +4,7 @@
     <string name="snackbar_location_action">Okay</string>
     <string name="snackbar_altitude_text">You are not in a flight it seems!</string>
     <string name="snackbar_altitude_action">Huh?</string>
+    <string name="snackbar_altitude_lock_text">Your device seems to lock the reported altitude at a specific value for security reasons. Sorry for any inconvenience caused!</string>
     <string name="direction_not_available">N/A</string>
     <string name="direction_east">East</string>
     <string name="direction_south">South</string>
