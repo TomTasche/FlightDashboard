@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -22,6 +23,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -69,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
 
     private LocationManager locationManager;
 
+    private FirebasePerformance performance;
+
     private ProgressBar progressBar;
     private Snackbar altitudeSnackbar;
     private Snackbar altitudeLockSnackbar;
@@ -96,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        performance = FirebasePerformance.getInstance();
+
+        Trace oldWorldTrace = performance.newTrace("delete_old_world_file");
+        oldWorldTrace.start();
+
         File oldWorldFile = new File(getFilesDir(), "world_v1.db");
         oldWorldFile.delete();
 
@@ -104,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
             File mapboxCacheFile = new File(getFilesDir(), "mbgl-offline.db");
             mapboxCacheFile.delete();
         }
+
+        oldWorldTrace.stop();
 
         Mapbox.getInstance(this, MAPBOX_API_KEY);
         Mapbox.setConnected(false);
@@ -154,11 +166,11 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
         super.onResume();
         mapView.onResume();
 
-        if (checkLocationEnabled()) {
-            if (!isMapInitialized) {
-                initializeMap();
-            }
-        } else {
+        if (!isMapInitialized) {
+            initializeMap();
+        }
+
+        if (!checkLocationEnabled()) {
             showLocationSnackbar();
         }
     }
@@ -182,6 +194,13 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
 
     private void initializeMap() {
         isMapInitialized = true;
+
+        mapView.addOnDidFailLoadingMapListener(new MapView.OnDidFailLoadingMapListener() {
+            @Override
+            public void onDidFailLoadingMap(String errorMessage) {
+                Crashlytics.log("load failed: " + errorMessage);
+            }
+        });
 
         copyOfflineMap();
 
@@ -224,6 +243,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
                 return;
             }
 
+            final Trace copyWorldTrace = performance.newTrace("copy_world_file");
+            copyWorldTrace.start();
+
             InputStream inputStream = getResources().openRawResource(R.raw.world);
             file.createNewFile();
             copy(inputStream, file);
@@ -241,11 +263,14 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
                         e.printStackTrace();
                     }
 
+                    copyWorldTrace.stop();
+
                     progressBar.setProgress(100);
                 }
 
                 @Override
                 public void onError(String error) {
+                    Crashlytics.log("merge failed: " + error);
                 }
             });
         } catch (IOException e) {
